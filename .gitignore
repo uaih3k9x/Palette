@@ -1,0 +1,14 @@
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+.vs/
+*.VC.db
+*.VC.opendb
+*.sln
+*.xcodeproj
+*.xcworkspace
+
+# Web
+web/node_modules/
+web/dist/
