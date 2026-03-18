@@ -1,4 +1,6 @@
 import { PlayerProfile, getLevelConfig } from '../lib/player';
+import { useLocale } from '../lib/i18n';
+import LocaleSwitcher from './LocaleSwitcher';
 
 interface Props {
   profile: PlayerProfile;
@@ -6,6 +8,7 @@ interface Props {
 }
 
 export default function PlayerBar({ profile, onLogout }: Props) {
+  const { t } = useLocale();
   const currentLevel = getLevelConfig(profile.level);
   const nextLevel = getLevelConfig(profile.level + 1);
   const xpProgress = profile.level >= 10 ? 100 :
@@ -20,7 +23,7 @@ export default function PlayerBar({ profile, onLogout }: Props) {
         <div>
           <div className="font-semibold">{profile.username}</div>
           <div className="text-xs text-stone-400">
-            {profile.level >= 10 ? 'Max Level' : `${profile.xp} / ${nextLevel.xpRequired} XP`}
+            {profile.level >= 10 ? t('player.maxLevel') : `${profile.xp} / ${nextLevel.xpRequired} XP`}
           </div>
         </div>
       </div>
@@ -36,12 +39,15 @@ export default function PlayerBar({ profile, onLogout }: Props) {
         </div>
       )}
 
-      <button
-        onClick={onLogout}
-        className="px-3 py-1 rounded bg-stone-700 hover:bg-stone-600 text-sm transition-colors"
-      >
-        Logout
-      </button>
+      <div className="flex items-center gap-2">
+        <LocaleSwitcher />
+        <button
+          onClick={onLogout}
+          className="px-3 py-1 rounded bg-stone-700 hover:bg-stone-600 text-sm transition-colors"
+        >
+          {t('player.logout')}
+        </button>
+      </div>
     </div>
   );
 }

@@ -92,11 +92,29 @@ export function loadFiringSlots(): FiringSlot[] {
 }
 
 export function isFiringComplete(slot: FiringSlot): boolean {
-  return Date.now() >= slot.startedAt + slot.durationMs;
+  const speedMultiplier = getTestSpeedMultiplier();
+  const adjustedDuration = slot.durationMs / speedMultiplier;
+  return Date.now() >= slot.startedAt + adjustedDuration;
 }
 
 export function getXPForScore(score: number, difficulty: 'easy' | 'medium' | 'hard'): number {
   const baseXP = Math.floor(score);
   const multiplier = difficulty === 'easy' ? 1 : difficulty === 'medium' ? 1.5 : 2;
   return Math.floor(baseXP * multiplier);
+}
+
+// Test acceleration (set to 1 for production, higher for testing)
+// e.g., 360 = 1 hour becomes 10 seconds
+export function getTestSpeedMultiplier(): number {
+  return +(localStorage.getItem('palette_test_speed') || '1');
+}
+
+export function setTestSpeedMultiplier(multiplier: number): void {
+  localStorage.setItem('palette_test_speed', multiplier.toString());
+}
+
+export function getRemainingTime(slot: FiringSlot): number {
+  const speedMultiplier = getTestSpeedMultiplier();
+  const adjustedDuration = slot.durationMs / speedMultiplier;
+  return Math.max(0, slot.startedAt + adjustedDuration - Date.now());
 }

@@ -2,7 +2,7 @@
 
 ## Summary
 
-Successfully implemented all 4 features for the Palette ceramic glaze web game:
+Successfully implemented all 4 features + debug tools for the Palette ceramic glaze web game:
 
 ### 1. Registration System ✓
 - `AuthScreen.tsx` — Login/registration interface
@@ -17,6 +17,7 @@ Successfully implemented all 4 features for the Palette ceramic glaze web game:
 - Progress bars showing firing completion
 - "Collect" button appears when firing completes
 - Results calculated only when collected (not when started)
+- **Test acceleration support** — Speed up time for testing
 
 ### 3. Daily Random Tasks ✓
 - `random-orders.ts` — Daily seed-based random order generation
@@ -34,6 +35,18 @@ Successfully implemented all 4 features for the Palette ceramic glaze web game:
 - Mineral unlock progression (Iron/Titanium/Copper → +Manganese → +Cobalt → +Chromium)
 - Recipe slot limits enforced
 - Locked minerals shown with 🔒 in dropdown
+
+### 5. Debug Tools ✓
+- `DebugPanel.tsx` — Floating debug panel (bottom-right corner)
+  - **Time acceleration presets**: 1x, 60x, 360x, 2880x
+  - Custom speed multiplier input
+  - Clear all data button
+- `LevelTree.tsx` — Visual progression tree
+  - Shows all 10 levels with unlock details
+  - Current level highlighted in orange
+  - Completed levels in green
+  - Future levels grayed out
+  - Shows XP requirements, minerals, slots, and firing times
 
 ## Modified Components
 
@@ -60,17 +73,22 @@ Successfully implemented all 4 features for the Palette ceramic glaze web game:
 - Mode switching (Fixed/Random)
 - XP award and level-up logic
 - localStorage persistence
+- Level tree toggle
+- Debug panel integration
 
 ## New Components
 
 - `AuthScreen.tsx` — Login interface
 - `PlayerBar.tsx` — Top bar with username, level, XP progress
 - `FiringSlotPanel.tsx` — Firing queue with live timers
+- `DebugPanel.tsx` — Floating debug tools
+- `LevelTree.tsx` — Visual progression tree
 
 ## localStorage Keys
 
 - `palette_player` — PlayerProfile JSON
 - `palette_firings` — FiringSlot[] JSON
+- `palette_test_speed` — Time acceleration multiplier (default: 1)
 
 ## Testing
 
@@ -79,28 +97,36 @@ Build successful. Dev server running at http://localhost:5173
 ### Test Flow
 1. Open browser → Login screen → Enter username
 2. Level 1: 3 minerals (Iron/Titanium/Copper), 1 slot, 8h firing
-3. Adjust recipe → "Start Firing (8h)" → Slot shows countdown
-4. (For testing: temporarily change `durationMs` to 10000 in player.ts)
-5. Firing completes → "Collect" button appears (animated pulse)
-6. Click Collect → Results shown → XP awarded
+3. **Click debug panel (🛠) → Set 2880x speed (8h = 10s)**
+4. Adjust recipe → "Start Firing (8h)" → Slot shows countdown
+5. Wait ~10 seconds → Firing completes
+6. Click "Collect" → Results shown → XP awarded
 7. Level up → New minerals/slots unlock
-8. Switch to "Daily Random" → 3 tasks (Easy/Medium/Hard)
-9. Refresh page → All state restored from localStorage
+8. Click "Show Level Tree" → See full progression
+9. Switch to "Daily Random" → 3 tasks (Easy/Medium/Hard)
+10. Refresh page → All state restored from localStorage
+
+### Debug Panel Features
+- **1x (Normal)**: Real-time 8-hour firing
+- **60x**: 1 minute = 1 second (8h = 8min)
+- **360x**: 1 hour = 10 seconds (8h = 80s)
+- **2880x**: 8 hours = 10 seconds (recommended for testing)
+- **Clear All Data**: Reset player profile and firing slots
 
 ## Level Progression Table
 
-| Level | XP Required | Minerals | Slots | Duration |
-|-------|-------------|----------|-------|----------|
-| 1 | 0 | 3 | 1 | 8h |
-| 2 | 100 | 4 | 1 | 7.5h |
-| 3 | 250 | 4 | 2 | 7h |
-| 4 | 450 | 5 | 2 | 6.5h |
-| 5 | 700 | 5 | 2 | 6h |
-| 6 | 1000 | 6 | 3 | 5.5h |
-| 7 | 1400 | 6 | 3 | 5h |
-| 8 | 1900 | 6 | 3 | 4.5h |
-| 9 | 2500 | 6 | 4 | 4h |
-| 10 | 3200 | 6 | 4 | 3.5h |
+| Level | XP Required | Minerals | Slots | Duration | Unlocks |
+|-------|-------------|----------|-------|----------|---------|
+| 1 | 0 | 3 | 1 | 8h | — |
+| 2 | 100 | 4 | 1 | 7.5h | Manganese Dioxide |
+| 3 | 250 | 4 | 2 | 7h | 2nd Firing Slot |
+| 4 | 450 | 5 | 2 | 6.5h | Cobalt Oxide |
+| 5 | 700 | 5 | 2 | 6h | — |
+| 6 | 1000 | 6 | 3 | 5.5h | Chromium Oxide + 3rd Slot |
+| 7 | 1400 | 6 | 3 | 5h | — |
+| 8 | 1900 | 6 | 3 | 4.5h | — |
+| 9 | 2500 | 6 | 4 | 4h | 4th Firing Slot |
+| 10 | 3200 | 6 | 4 | 3.5h | Max Level |
 
 ## Architecture
 
@@ -111,3 +137,5 @@ Build successful. Dev server running at http://localhost:5173
 - Daily seed based on date string hash
 - Modular component structure
 - TypeScript for type safety
+- Test acceleration via localStorage multiplier
+- Visual progression tree with unlock details

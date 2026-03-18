@@ -1,4 +1,5 @@
 import { MineralStack, StarterMineralKind, ALL_MINERAL_KINDS, makeStarterMineral } from '../lib/glaze';
+import { useLocale } from '../lib/i18n';
 
 interface Props {
   recipe: MineralStack[];
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function Workbench({ recipe, onChange, maxSlots, unlockedMinerals, disabled }: Props) {
+  const { t } = useLocale();
   const update = (i: number, parts: number) => {
     const next = [...recipe];
     next[i] = { ...next[i], parts };
@@ -24,7 +26,7 @@ export default function Workbench({ recipe, onChange, maxSlots, unlockedMinerals
   return (
     <div className="rounded-xl bg-stone-800 p-4 space-y-3">
       <h3 className="text-sm font-semibold text-stone-400 uppercase tracking-wide">
-        Recipe ({recipe.length} / {maxSlots})
+        {t('workbench.title')} ({recipe.length} / {maxSlots})
       </h3>
       {recipe.map((stack, i) => (
         <div key={i} className="flex items-center gap-2">
@@ -45,7 +47,7 @@ export default function Workbench({ recipe, onChange, maxSlots, unlockedMinerals
           onChange={e => { if (e.target.value) add(e.target.value as StarterMineralKind); }}
           disabled={disabled}
         >
-          <option value="">+ Add mineral…</option>
+          <option value="">{t('workbench.add')}</option>
           {ALL_MINERAL_KINDS.map(k => {
             const isUsed = usedIds.has(k);
             const isUnlocked = unlockedMinerals.includes(k);

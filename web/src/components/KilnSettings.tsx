@@ -1,4 +1,5 @@
 import { KilnSettings, Atmosphere } from '../lib/glaze';
+import { useLocale } from '../lib/i18n';
 
 interface Props {
   settings: KilnSettings;
@@ -12,6 +13,7 @@ interface Props {
 const atmospheres: Atmosphere[] = ['Oxidation', 'Neutral', 'Reduction'];
 
 export default function KilnSettingsPanel({ settings, onChange, onFire, disabled, firingLabel, canFire }: Props) {
+  const { t } = useLocale();
   const set = <K extends keyof KilnSettings>(k: K, v: KilnSettings[K]) =>
     onChange({ ...settings, [k]: v });
 
@@ -31,15 +33,15 @@ export default function KilnSettingsPanel({ settings, onChange, onFire, disabled
 
   return (
     <div className="rounded-xl bg-stone-800 p-4 space-y-3">
-      <h3 className="text-sm font-semibold text-stone-400 uppercase tracking-wide">Kiln</h3>
-      {slider('Temperature', 'temperatureCelsius', 900, 1320, 5)}
-      {slider('Thickness', 'glazeThickness', 0, 1, 0.01)}
-      {slider('Cooling Rate', 'coolingRate', 0, 1, 0.01)}
-      {slider('Clay Warmth', 'clayWarmth', 0, 1, 0.01)}
-      {slider('Variance', 'surfaceVariance', 0, 1, 0.01)}
+      <h3 className="text-sm font-semibold text-stone-400 uppercase tracking-wide">{t('kiln.title')}</h3>
+      {slider(t('kiln.temperature'), 'temperatureCelsius', 900, 1320, 5)}
+      {slider(t('kiln.thickness'), 'glazeThickness', 0, 1, 0.01)}
+      {slider(t('kiln.coolingRate'), 'coolingRate', 0, 1, 0.01)}
+      {slider(t('kiln.clayWarmth'), 'clayWarmth', 0, 1, 0.01)}
+      {slider(t('kiln.variance'), 'surfaceVariance', 0, 1, 0.01)}
 
       <div className="flex items-center gap-2">
-        <span className="w-32 text-sm">Atmosphere</span>
+        <span className="w-32 text-sm">{t('kiln.atmosphere')}</span>
         <div className="flex gap-1">
           {atmospheres.map(a => (
             <button key={a} onClick={() => set('atmosphere', a)}
@@ -52,7 +54,7 @@ export default function KilnSettingsPanel({ settings, onChange, onFire, disabled
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="w-32 text-sm">Seed</span>
+        <span className="w-32 text-sm">{t('kiln.seed')}</span>
         <input type="number" value={settings.variationSeed}
           onChange={e => set('variationSeed', +e.target.value)}
           disabled={disabled}
@@ -62,7 +64,7 @@ export default function KilnSettingsPanel({ settings, onChange, onFire, disabled
       <button onClick={onFire}
         disabled={disabled || !canFire}
         className="w-full py-2 rounded-lg bg-orange-600 hover:bg-orange-500 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        title={!canFire ? 'All firing slots are full' : ''}>
+        title={!canFire ? t('kiln.slotsFull') : ''}>
         {firingLabel}
       </button>
     </div>

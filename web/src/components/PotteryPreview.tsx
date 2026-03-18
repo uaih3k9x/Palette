@@ -1,10 +1,12 @@
 import { FiringResult, color3ToCss } from '../lib/glaze';
+import { useLocale } from '../lib/i18n';
 
 interface Props {
   result: FiringResult | null;
 }
 
 export default function PotteryPreview({ result }: Props) {
+  const { t } = useLocale();
   const surface = result ? color3ToCss(result.surfaceColor) : '#6b5b4f';
   const rim = result ? color3ToCss(result.rimColor) : '#7a6a5e';
   const roughness = result?.roughness ?? 0.65;
@@ -48,7 +50,7 @@ export default function PotteryPreview({ result }: Props) {
       </svg>
       {result && (
         <div className="text-xs text-stone-500 mt-1 text-center">
-          Burn Risk: {(result.burnRisk * 100).toFixed(0)}% &middot; Stability: {(result.stability * 100).toFixed(0)}%
+          {t('result.burnRisk')}: {(result.burnRisk * 100).toFixed(0)}% &middot; {t('result.stability')}: {(result.stability * 100).toFixed(0)}%
         </div>
       )}
     </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { FiringSlot, isFiringComplete } from '../lib/player';
+import { FiringSlot, isFiringComplete, getRemainingTime, getTestSpeedMultiplier } from '../lib/player';
+import { useLocale } from '../lib/i18n';
 
 interface Props {
   slots: FiringSlot[];
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function FiringSlotPanel({ slots, maxSlots, onCollect }: Props) {
+  const { t } = useLocale();
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -24,16 +26,16 @@ export default function FiringSlotPanel({ slots, maxSlots, onCollect }: Props) {
 
   const getSlotStatus = (slot: FiringSlot) => {
     if (isFiringComplete(slot)) {
-      return { status: 'complete', label: 'Ready to Collect', color: 'bg-green-600' };
+      return { status: 'complete', label: t('firing.ready'), color: 'bg-green-600' };
     }
-    const remaining = slot.startedAt + slot.durationMs - Date.now();
+    const remaining = getRemainingTime(slot);
     return { status: 'firing', label: formatTime(remaining), color: 'bg-orange-600' };
   };
 
   return (
     <div className="rounded-xl bg-stone-800 p-4 space-y-3">
       <h3 className="text-sm font-semibold text-stone-400 uppercase tracking-wide">
-        Firing Slots ({slots.length} / {maxSlots})
+        {t('firing.title')} ({slots.length} / {maxSlots})
       </h3>
 
       {Array.from({ length: maxSlots }).map((_, i) => {
@@ -41,26 +43,28 @@ export default function FiringSlotPanel({ slots, maxSlots, onCollect }: Props) {
         if (!slot) {
           return (
             <div key={i} className="p-3 rounded-lg bg-stone-700 text-center text-stone-500 text-sm">
-              Available
+              {t('firing.available')}
             </div>
           );
         }
 
         const { status, label, color } = getSlotStatus(slot);
+        const speedMultiplier = getTestSpeedMultiplier();
+        const adjustedDuration = slot.durationMs / speedMultiplier;
         const progress = status === 'firing'
-          ? ((Date.now() - slot.startedAt) / slot.durationMs) * 100
+          ? ((Date.now() - slot.startedAt) / adjustedDuration) * 100
           : 100;
 
         return (
           <div key={slot.id} className="p-3 rounded-lg bg-stone-700 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Slot {i + 1}</span>
+              <span className="text-sm font-medium">{t('firing.slot')} {i + 1}</span>
               {status === 'complete' && (
                 <button
                   onClick={() => onCollect(slot.id)}
                   className="px-3 py-1 rounded bg-green-600 hover:bg-green-500 text-sm font-semibold animate-pulse"
                 >
-                  Collect
+                  {t('firing.collect')}
                 </button>
               )}
             </div>

@@ -1,4 +1,5 @@
 import { MatchResult, FiringResult } from '../lib/glaze';
+import { useLocale } from '../lib/i18n';
 
 interface Props {
   result: FiringResult | null;
@@ -6,10 +7,12 @@ interface Props {
 }
 
 export default function ResultPanel({ result, match }: Props) {
+  const { t } = useLocale();
+
   if (!result || !match) {
     return (
       <div className="rounded-xl bg-stone-800 p-4 text-center text-stone-500 text-sm">
-        Fire the kiln to see results.
+        {t('result.empty')}
       </div>
     );
   }
@@ -22,13 +25,13 @@ export default function ResultPanel({ result, match }: Props) {
         <span className={`text-3xl font-bold ${scoreColor}`}>{match.score.toFixed(0)}</span>
         {match.withinTolerance && (
           <span className="px-2 py-0.5 rounded-full bg-green-800 text-green-300 text-xs font-semibold">
-            Within Tolerance
+            {t('result.withinTolerance')}
           </span>
         )}
       </div>
       <div className="grid grid-cols-2 gap-2 text-xs text-stone-400">
-        <div>Color Distance: {match.colorDistance.toFixed(3)}</div>
-        <div>Surface Distance: {match.surfaceDistance.toFixed(3)}</div>
+        <div>{t('result.colorDist')}: {match.colorDistance.toFixed(3)}</div>
+        <div>{t('result.surfaceDist')}: {match.surfaceDistance.toFixed(3)}</div>
       </div>
       {result.notes.length > 0 && (
         <ul className="text-xs text-stone-400 space-y-1 list-disc list-inside">

@@ -10,6 +10,7 @@ import {
   saveFiringSlots, getLevelConfig, awardXP, getXPForScore,
 } from './lib/player';
 import { generateDailyOrders, RandomOrder } from './lib/random-orders';
+import { LocaleProvider, useLocale } from './lib/i18n';
 import AuthScreen from './components/AuthScreen';
 import PlayerBar from './components/PlayerBar';
 import OrderPanel from './components/OrderPanel';
@@ -18,8 +19,11 @@ import KilnSettingsPanel from './components/KilnSettings';
 import PotteryPreview from './components/PotteryPreview';
 import ResultPanel from './components/ResultPanel';
 import FiringSlotPanel from './components/FiringSlotPanel';
+import DebugPanel from './components/DebugPanel';
+import LevelTree from './components/LevelTree';
 
-export default function App() {
+function AppContent() {
+  const { t } = useLocale();
   const [player, setPlayer] = useState<PlayerProfile | null>(null);
   const [recipe, setRecipe] = useState<MineralStack[]>(makeStarterRecipe);
   const [kiln, setKiln] = useState<KilnSettings>(makeStarterKilnSettings);
@@ -30,6 +34,7 @@ export default function App() {
   const [mode, setMode] = useState<'fixed' | 'random'>('fixed');
   const [dailyOrders, setDailyOrders] = useState<RandomOrder[]>([]);
   const [collectingSlotId, setCollectingSlotId] = useState<number | null>(null);
+  const [showLevelTree, setShowLevelTree] = useState(false);
 
   useEffect(() => {
     const saved = loadPlayer();
@@ -56,6 +61,17 @@ export default function App() {
     setFiringSlots([]);
     setMode('fixed');
   };
+
+  const handleClearData = () => {
+    if (confirm(t('debug.confirmClear'))) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  };
+
+  useEffect(() => {
+    document.title = t('app.title');
+  }, [t]);
 
   const startFiring = useCallback(() => {
     if (!player) return;
@@ -120,7 +136,7 @@ export default function App() {
   const orders = mode === 'fixed' ? ORDERS : dailyOrders;
   const currentOrder = orders[orderIdx];
   const canFire = firingSlots.length < levelConfig.slots;
-  const firingLabel = `Start Firing (${levelConfig.durationHours}h)`;
+  const firingLabel = `${t('startFiring')} (${levelConfig.durationHours}h)`;
 
   return (
     <div className="min-h-screen p-4 max-w-6xl mx-auto space-y-4">
@@ -133,7 +149,7 @@ export default function App() {
             mode === 'fixed' ? 'bg-orange-600' : 'bg-stone-700 hover:bg-stone-600'
           }`}
         >
-          Fixed Orders
+          {t('mode.fixed')}
         </button>
         <button
           onClick={() => { setMode('random'); setOrderIdx(0); setResult(null); setMatch(null); }}
@@ -141,9 +157,21 @@ export default function App() {
             mode === 'random' ? 'bg-orange-600' : 'bg-stone-700 hover:bg-stone-600'
           }`}
         >
-          Daily Random
+          {t('mode.random')}
+        </button>
+        <button
+          onClick={() => setShowLevelTree(!showLevelTree)}
+          className="px-4 py-2 rounded-lg font-semibold bg-stone-700 hover:bg-stone-600 transition-colors"
+        >
+          {showLevelTree ? 'Hide' : 'Show'} {t('mode.levelTree')}
         </button>
       </div>
+
+      {showLevelTree && (
+        <div className="max-w-2xl mx-auto">
+          <LevelTree profile={player} />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="space-y-4">
@@ -188,6 +216,16 @@ export default function App() {
           <ResultPanel result={result} match={match} />
         </div>
       </div>
+
+      <DebugPanel onClearData={handleClearData} />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LocaleProvider>
+      <AppContent />
+    </LocaleProvider>
   );
 }
