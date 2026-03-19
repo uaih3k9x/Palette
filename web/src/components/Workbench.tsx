@@ -10,7 +10,9 @@ interface Props {
 }
 
 export default function Workbench({ recipe, onChange, maxSlots, unlockedMinerals, disabled }: Props) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const mineralName = (m: { displayName: string; displayNameZh: string }) =>
+    locale === 'zh' ? m.displayNameZh : m.displayName;
   const update = (i: number, parts: number) => {
     const next = [...recipe];
     next[i] = { ...next[i], parts };
@@ -30,7 +32,7 @@ export default function Workbench({ recipe, onChange, maxSlots, unlockedMinerals
       </h3>
       {recipe.map((stack, i) => (
         <div key={i} className="flex items-center gap-2">
-          <span className="w-28 text-sm truncate">{stack.mineral.displayName}</span>
+          <span className="w-28 text-sm truncate">{mineralName(stack.mineral)}</span>
           <input type="range" min={0} max={1} step={0.01} value={stack.parts}
             onChange={e => update(i, +e.target.value)}
             disabled={disabled}
@@ -54,7 +56,7 @@ export default function Workbench({ recipe, onChange, maxSlots, unlockedMinerals
             if (isUsed) return null;
             return (
               <option key={k} value={k} disabled={!isUnlocked}>
-                {isUnlocked ? makeStarterMineral(k).displayName : `🔒 ${makeStarterMineral(k).displayName}`}
+                {isUnlocked ? mineralName(makeStarterMineral(k)) : `🔒 ${mineralName(makeStarterMineral(k))}`}
               </option>
             );
           })}

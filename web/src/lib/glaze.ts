@@ -7,6 +7,7 @@ export type Atmosphere = 'Oxidation' | 'Neutral' | 'Reduction';
 export interface MineralDefinition {
   mineralId: string;
   displayName: string;
+  displayNameZh: string;
   baseTint: Color3;
   oxidationTint: Color3;
   reductionTint: Color3;
@@ -23,6 +24,7 @@ export interface MineralDefinition {
   failureRiskPerExcess: number;
   failureTint: Color3;
   shortNote: string;
+  shortNoteZh: string;
 }
 
 export interface MineralStack {
@@ -117,42 +119,48 @@ const D: Partial<MineralDefinition> = {
 
 export function makeStarterMineral(kind: StarterMineralKind): MineralDefinition {
   switch (kind) {
-    case 'IronOxide': return { ...D, mineralId: 'IronOxide', displayName: 'Iron Oxide',
+    case 'IronOxide': return { ...D, mineralId: 'IronOxide', displayName: 'Iron Oxide', displayNameZh: '氧化铁',
       baseTint:[0.46,0.28,0.14], oxidationTint:[0.18,0.09,0.01], reductionTint:[0.05,0.03,0.02],
       colorStrength:1.05, roughnessDelta:0.08, speckleDelta:0.08,
       temperatureResponse:-0.35, coolingResponse:0.10, atmosphereResponse:-0.15,
       stableMaxShare:0.55, failureRiskPerExcess:1.0, failureTint:[0.16,0.12,0.08],
-      shortNote:'Reliable earth browns; can go near-black when pushed hot.' } as MineralDefinition;
-    case 'CopperCarbonate': return { ...D, mineralId: 'CopperCarbonate', displayName: 'Copper Carbonate',
+      shortNote:'Reliable earth browns; can go near-black when pushed hot.',
+      shortNoteZh:'稳定的土棕色；高温下可接近黑色。' } as MineralDefinition;
+    case 'CopperCarbonate': return { ...D, mineralId: 'CopperCarbonate', displayName: 'Copper Carbonate', displayNameZh: '碳酸铜',
       baseTint:[0.08,0.36,0.30], oxidationTint:[0.04,0.28,0.22], reductionTint:[0.62,0.10,0.08],
       colorStrength:1.20, metallicDelta:0.06, mottlingDelta:0.10, opacityDelta:0.06,
       temperatureResponse:0.20, coolingResponse:0.18, atmosphereResponse:0.80,
       stableMaxShare:0.18, failureRiskPerExcess:1.45, failureTint:[0.22,0.16,0.11],
-      shortNote:'Reduction can flip copper from green to a smoky red.' } as MineralDefinition;
-    case 'CobaltOxide': return { ...D, mineralId: 'CobaltOxide', displayName: 'Cobalt Oxide',
+      shortNote:'Reduction can flip copper from green to a smoky red.',
+      shortNoteZh:'还原气氛下铜绿可转为烟红色。' } as MineralDefinition;
+    case 'CobaltOxide': return { ...D, mineralId: 'CobaltOxide', displayName: 'Cobalt Oxide', displayNameZh: '氧化钴',
       baseTint:[0.08,0.18,0.65], oxidationTint:[0.02,0.12,0.30], reductionTint:[0.08,0.04,0.20],
       colorStrength:2.35, mottlingDelta:0.05, opacityDelta:-0.04,
       temperatureResponse:0.15, coolingResponse:0.05, atmosphereResponse:-0.10,
       stableMaxShare:0.10, failureRiskPerExcess:2.00, failureTint:[0.05,0.07,0.15],
-      shortNote:'Very strong. Small amounts dominate the palette quickly.' } as MineralDefinition;
-    case 'ManganeseDioxide': return { ...D, mineralId: 'ManganeseDioxide', displayName: 'Manganese Dioxide',
+      shortNote:'Very strong. Small amounts dominate the palette quickly.',
+      shortNoteZh:'着色力极强，少量即可主导色调。' } as MineralDefinition;
+    case 'ManganeseDioxide': return { ...D, mineralId: 'ManganeseDioxide', displayName: 'Manganese Dioxide', displayNameZh: '二氧化锰',
       baseTint:[0.28,0.16,0.20], oxidationTint:[0.12,0.08,0.10], reductionTint:[0.08,0.07,0.08],
       colorStrength:0.95, roughnessDelta:0.10, speckleDelta:0.22, mottlingDelta:0.12,
       temperatureResponse:-0.10, coolingResponse:0.28, atmosphereResponse:-0.20,
       stableMaxShare:0.25, failureRiskPerExcess:1.10, failureTint:[0.10,0.08,0.08],
-      shortNote:'Adds mottling, speckles, and smoky violet-brown breaks.' } as MineralDefinition;
-    case 'TitaniumDioxide': return { ...D, mineralId: 'TitaniumDioxide', displayName: 'Titanium Dioxide',
+      shortNote:'Adds mottling, speckles, and smoky violet-brown breaks.',
+      shortNoteZh:'增加斑驳、斑点和烟紫棕色纹理。' } as MineralDefinition;
+    case 'TitaniumDioxide': return { ...D, mineralId: 'TitaniumDioxide', displayName: 'Titanium Dioxide', displayNameZh: '二氧化钛',
       baseTint:[0.60,0.54,0.38], oxidationTint:[0.10,0.10,0.08], reductionTint:[0.08,0.07,0.06],
       colorStrength:0.58, roughnessDelta:0.05, speckleDelta:0.10, mottlingDelta:0.16, opacityDelta:0.24,
       temperatureResponse:0.12, coolingResponse:0.55, atmosphereResponse:0.00,
       stableMaxShare:0.45, failureRiskPerExcess:0.80, failureTint:[0.42,0.38,0.30],
-      shortNote:'Creams the glaze and helps slow cooling produce clustered breaks.' } as MineralDefinition;
-    case 'ChromiumOxide': default: return { ...D, mineralId: 'ChromiumOxide', displayName: 'Chromium Oxide',
+      shortNote:'Creams the glaze and helps slow cooling produce clustered breaks.',
+      shortNoteZh:'使釉面乳化，慢冷时产生聚集纹理。' } as MineralDefinition;
+    case 'ChromiumOxide': default: return { ...D, mineralId: 'ChromiumOxide', displayName: 'Chromium Oxide', displayNameZh: '氧化铬',
       baseTint:[0.12,0.36,0.14], oxidationTint:[0.04,0.18,0.05], reductionTint:[0.12,0.10,0.04],
       colorStrength:1.35, roughnessDelta:0.04, mottlingDelta:0.08, opacityDelta:0.05,
       temperatureResponse:-0.05, coolingResponse:0.10, atmosphereResponse:-0.35,
       stableMaxShare:0.14, failureRiskPerExcess:1.40, failureTint:[0.14,0.12,0.07],
-      shortNote:'Clean greens in oxidation, muddier olive under heavy reduction.' } as MineralDefinition;
+      shortNote:'Clean greens in oxidation, muddier olive under heavy reduction.',
+      shortNoteZh:'氧化时呈纯绿色，强还原下偏橄榄色。' } as MineralDefinition;
   }
 }
 
@@ -297,7 +305,8 @@ export function evaluateAgainstTarget(result: FiringResult, target: TargetProfil
     (result.likelyFailed ? 0.20 : 0);
 
   const weightTotal = target.colorWeight + target.surfaceWeight + 0.20;
-  const score = clamp(100 * (1 - weightedDist / weightTotal), 0, 100);
+  const rawRatio = 1 - weightedDist / weightTotal;
+  const score = clamp(100 * rawRatio * rawRatio, 0, 100);
   const withinTolerance =
     colorDist <= target.colorTolerance &&
     surfDist <= target.surfaceTolerance &&
@@ -310,4 +319,46 @@ export function evaluateAgainstTarget(result: FiringResult, target: TargetProfil
 
 export function color3ToCss(c: Color3): string {
   return `rgb(${Math.round(c[0]*255)},${Math.round(c[1]*255)},${Math.round(c[2]*255)})`;
+}
+
+// ── Intuition Preview ──────────────────────────────────────────────
+
+function seededRandom(seed: number): () => number {
+  let s = seed | 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) | 0;
+    return (s >>> 0) / 4294967296;
+  };
+}
+
+export function simulateIntuition(
+  recipe: MineralStack[], kiln: KilnSettings, level: number, seed: number
+): FiringResult {
+  const exact = simulateFiring(recipe, kiln);
+  const noise = Math.max(0.02, 0.30 - (level - 1) * 0.028);
+  const rng = seededRandom(seed);
+
+  const jitter = () => rng() * noise * 2 - noise;
+
+  const surfaceColor: Color3 = [
+    clamp(exact.surfaceColor[0] + jitter(), 0, 1),
+    clamp(exact.surfaceColor[1] + jitter(), 0, 1),
+    clamp(exact.surfaceColor[2] + jitter(), 0, 1),
+  ];
+  const rimColor: Color3 = [
+    clamp(exact.rimColor[0] + jitter(), 0, 1),
+    clamp(exact.rimColor[1] + jitter(), 0, 1),
+    clamp(exact.rimColor[2] + jitter(), 0, 1),
+  ];
+
+  return {
+    ...exact,
+    surfaceColor,
+    rimColor,
+    roughness: clamp(exact.roughness + jitter() * 0.5, 0.05, 1),
+    speckle: clamp(exact.speckle + jitter() * 0.5, 0, 1),
+    mottling: clamp(exact.mottling + jitter() * 0.5, 0, 1),
+    burnRisk: clamp(exact.burnRisk + jitter() * 0.3, 0, 1),
+    stability: clamp(exact.stability + jitter() * 0.3, 0, 1),
+  };
 }

@@ -18,10 +18,10 @@ export default function DebugPanel({ onClearData }: Props) {
   };
 
   const presets = [
-    { label: '1x (Normal)', value: 1 },
-    { label: '60x (1min = 1s)', value: 60 },
-    { label: '360x (1h = 10s)', value: 360 },
-    { label: '2880x (8h = 10s)', value: 2880 },
+    { label: t('debug.speedNormal'), value: 1 },
+    { label: t('debug.speed60'), value: 60 },
+    { label: t('debug.speed360'), value: 360 },
+    { label: t('debug.speed2880'), value: 2880 },
   ];
 
   if (!isOpen) {
@@ -81,7 +81,7 @@ export default function DebugPanel({ onClearData }: Props) {
           </button>
         </div>
         <p className="text-xs text-stone-500">
-          Current: {speed}x {t('debug.speed')}
+          {t('debug.current')}: {speed}x {t('debug.speed')}
         </p>
       </div>
 

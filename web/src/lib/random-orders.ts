@@ -5,6 +5,7 @@ export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface RandomOrder {
   name: string;
+  nameZh: string;
   target: TargetProfile;
   difficulty: Difficulty;
   seed: number;
@@ -15,9 +16,19 @@ const ADJECTIVES = [
   'Emerald', 'Ruby', 'Sapphire', 'Topaz', 'Onyx', 'Ivory', 'Scarlet', 'Violet',
 ];
 
+const ADJECTIVES_ZH = [
+  '翡翠', '绯红', '蔚蓝', '琥珀', '黑曜', '珍珠', '珊瑚', '靛蓝',
+  '碧绿', '红宝', '蓝宝', '黄玉', '玛瑙', '象牙', '猩红', '紫罗兰',
+];
+
 const NOUNS = [
   'Mist', 'Dawn', 'Dusk', 'Storm', 'Whisper', 'Echo', 'Shadow', 'Flame',
   'Frost', 'Bloom', 'Tide', 'Breeze', 'Ember', 'Veil', 'Haze', 'Glow',
+];
+
+const NOUNS_ZH = [
+  '薄雾', '晨曦', '暮色', '风暴', '低语', '回响', '暗影', '焰火',
+  '霜华', '花开', '潮汐', '微风', '余烬', '轻纱', '烟霭', '微光',
 ];
 
 export function getDailySeed(): number {
@@ -37,6 +48,7 @@ export function generateRandomOrder(seed: number, difficulty: Difficulty): Rando
   const adjIdx = Math.floor(rng() * ADJECTIVES.length);
   const nounIdx = Math.floor(rng() * NOUNS.length);
   const name = `${ADJECTIVES[adjIdx]} ${NOUNS[nounIdx]}`;
+  const nameZh = `${ADJECTIVES_ZH[adjIdx]}${NOUNS_ZH[nounIdx]}`;
 
   const targetColor: [number, number, number] = [
     rng() * 0.8 + 0.1,
@@ -58,6 +70,7 @@ export function generateRandomOrder(seed: number, difficulty: Difficulty): Rando
 
   return {
     name,
+    nameZh,
     target: {
       targetColor,
       targetRoughness,

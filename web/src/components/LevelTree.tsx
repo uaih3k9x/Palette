@@ -48,7 +48,7 @@ export default function LevelTree({ profile }: Props) {
                   </div>
                   <div>
                     <div className="text-sm font-semibold">
-                      Level {level}
+                      {t('level.label')} {level}
                       {isCurrent && <span className="ml-2 text-orange-400">{t('level.current')}</span>}
                     </div>
                     <div className="text-xs text-stone-400">
@@ -76,32 +76,32 @@ export default function LevelTree({ profile }: Props) {
 
               {level === 2 && (
                 <div className="mt-2 text-xs text-amber-400">
-                  🔓 Unlocks: Manganese Dioxide
+                  {t('level.unlocks.manganese')}
                 </div>
               )}
               {level === 3 && (
                 <div className="mt-2 text-xs text-amber-400">
-                  🔓 Unlocks: 2nd Firing Slot
+                  {t('level.unlocks.slot2')}
                 </div>
               )}
               {level === 4 && (
                 <div className="mt-2 text-xs text-amber-400">
-                  🔓 Unlocks: Cobalt Oxide
+                  {t('level.unlocks.cobalt')}
                 </div>
               )}
               {level === 6 && (
                 <div className="mt-2 text-xs text-amber-400">
-                  🔓 Unlocks: Chromium Oxide + 3rd Slot
+                  {t('level.unlocks.chromiumSlot3')}
                 </div>
               )}
               {level === 9 && (
                 <div className="mt-2 text-xs text-amber-400">
-                  🔓 Unlocks: 4th Firing Slot
+                  {t('level.unlocks.slot4')}
                 </div>
               )}
               {level === 10 && (
                 <div className="mt-2 text-xs text-purple-400">
-                  ⭐ {t('level.max')}
+                  {t('level.max')}
                 </div>
               )}
             </div>

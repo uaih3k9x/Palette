@@ -26,6 +26,9 @@ export default function PlayerBar({ profile, onLogout }: Props) {
             {profile.level >= 10 ? t('player.maxLevel') : `${profile.xp} / ${nextLevel.xpRequired} XP`}
           </div>
         </div>
+        <div className="px-2 py-1 rounded bg-yellow-700/50 text-yellow-300 text-xs font-semibold">
+          {profile.gold}g
+        </div>
       </div>
 
       {profile.level < 10 && (

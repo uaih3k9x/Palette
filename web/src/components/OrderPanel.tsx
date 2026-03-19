@@ -1,4 +1,5 @@
 import { TargetProfile, MatchResult, color3ToCss } from '../lib/glaze';
+import { Submission } from '../lib/player';
 import { Difficulty } from '../lib/random-orders';
 import { useLocale } from '../lib/i18n';
 
@@ -12,14 +13,23 @@ interface Props {
   onNext: () => void;
   canAdvance: boolean;
   difficulty?: Difficulty;
+  hasPortfolioPieces?: boolean;
+  onSubmitFromPortfolio?: () => void;
+  submission?: Submission | null;
 }
 
-export default function OrderPanel({ orderIndex, orderName, target, lastMatch, totalOrders, onPrev, onNext, canAdvance, difficulty }: Props) {
+export default function OrderPanel({ orderIndex, orderName, target, lastMatch, totalOrders, onPrev, onNext, canAdvance, difficulty, hasPortfolioPieces, onSubmitFromPortfolio, submission }: Props) {
   const { t } = useLocale();
   const difficultyColors = {
     easy: 'bg-green-600',
     medium: 'bg-yellow-600',
     hard: 'bg-red-600',
+  };
+
+  const difficultyI18n: Record<string, string> = {
+    easy: t('difficulty.easy'),
+    medium: t('difficulty.medium'),
+    hard: t('difficulty.hard'),
   };
 
   return (
@@ -35,7 +45,7 @@ export default function OrderPanel({ orderIndex, orderName, target, lastMatch, t
         <h2 className="text-lg font-semibold">{orderName}</h2>
         {difficulty && (
           <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${difficultyColors[difficulty]}`}>
-            {difficulty}
+            {difficultyI18n[difficulty]}
           </span>
         )}
       </div>
@@ -48,10 +58,36 @@ export default function OrderPanel({ orderIndex, orderName, target, lastMatch, t
           <div>{t('order.mottling')}: {target.targetMottling.toFixed(2)}</div>
         </div>
       </div>
-      <div className="text-center text-2xl font-bold">
-        {lastMatch ? `${lastMatch.score.toFixed(0)}` : '--'}
-        <span className="text-sm text-stone-400 ml-1">{t('order.pts')}</span>
-      </div>
+
+      {submission ? (
+        <div className="space-y-1">
+          <div className="text-center text-2xl font-bold text-green-400">
+            {submission.score.toFixed(0)}
+            <span className="text-sm text-stone-400 ml-1">{t('order.pts')}</span>
+          </div>
+          <div className="text-center text-xs text-green-500">
+            {t('order.submitted')} · +{submission.xpGained} XP
+          </div>
+          <div className="text-center text-xs text-stone-500">
+            {new Date(submission.timestamp).toLocaleString()}
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="text-center text-2xl font-bold">
+            {lastMatch ? `${lastMatch.score.toFixed(0)}` : '--'}
+            <span className="text-sm text-stone-400 ml-1">{t('order.pts')}</span>
+          </div>
+          {hasPortfolioPieces && onSubmitFromPortfolio && (
+            <button
+              onClick={onSubmitFromPortfolio}
+              className="w-full py-2 rounded-lg bg-green-700 hover:bg-green-600 text-sm font-semibold transition-colors"
+            >
+              {t('order.submitFromPortfolio')}
+            </button>
+          )}
+        </>
+      )}
     </div>
   );
 }

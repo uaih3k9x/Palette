@@ -1,4 +1,6 @@
-import { StarterMineralKind, MineralStack, KilnSettings } from './glaze';
+import { StarterMineralKind, MineralStack, KilnSettings, FiringResult } from './glaze';
+
+// ── Types ─────────────────────────────────────────────────────────
 
 export interface PlayerProfile {
   username: string;
@@ -7,6 +9,9 @@ export interface PlayerProfile {
   unlockedMinerals: StarterMineralKind[];
   maxRecipeSlots: number;
   createdAt: number;
+  gold: number;
+  bonusMinerals: StarterMineralKind[];
+  bonusSlots: number;
 }
 
 export interface FiringSlot {
@@ -20,6 +25,43 @@ export interface FiringSlot {
   randomSeed?: number;
   randomDifficulty?: 'easy' | 'medium' | 'hard';
 }
+
+export interface PortfolioItem {
+  id: number;
+  recipe: MineralStack[];
+  kiln: KilnSettings;
+  result: FiringResult;
+  orderName: string;
+  matchScore: number;
+  timestamp: number;
+}
+
+export interface SavedRecipe {
+  id: number;
+  name: string;
+  recipe: MineralStack[];
+  kiln: KilnSettings;
+  createdAt: number;
+}
+
+export interface AuctionSlot {
+  id: number;
+  piece: PortfolioItem;
+  startedAt: number;
+  durationMs: number;
+  hiddenQuality: number;
+}
+
+export interface Submission {
+  id: number;
+  orderKey: string;       // e.g. "fixed:3" or "random:2024-03-18:1"
+  orderName: string;
+  score: number;
+  xpGained: number;
+  timestamp: number;
+}
+
+// ── Level Table ───────────────────────────────────────────────────
 
 interface LevelConfig {
   xpRequired: number;
@@ -41,6 +83,8 @@ const LEVEL_TABLE: Record<number, LevelConfig> = {
   10: { xpRequired: 3200, minerals: ['IronOxide', 'TitaniumDioxide', 'CopperCarbonate', 'ManganeseDioxide', 'CobaltOxide', 'ChromiumOxide'], slots: 4, durationHours: 3.5 },
 };
 
+// ── Player CRUD ───────────────────────────────────────────────────
+
 export function createPlayer(username: string): PlayerProfile {
   return {
     username,
@@ -49,6 +93,9 @@ export function createPlayer(username: string): PlayerProfile {
     unlockedMinerals: LEVEL_TABLE[1].minerals,
     maxRecipeSlots: LEVEL_TABLE[1].slots,
     createdAt: Date.now(),
+    gold: 0,
+    bonusMinerals: [],
+    bonusSlots: 0,
   };
 }
 
@@ -58,13 +105,18 @@ export function savePlayer(p: PlayerProfile): void {
 
 export function loadPlayer(): PlayerProfile | null {
   const data = localStorage.getItem('palette_player');
-  return data ? JSON.parse(data) : null;
+  if (!data) return null;
+  const p = JSON.parse(data);
+  // Migration: add new fields with defaults
+  if (p.gold === undefined) p.gold = 0;
+  if (!p.bonusMinerals) p.bonusMinerals = [];
+  if (p.bonusSlots === undefined) p.bonusSlots = 0;
+  return p;
 }
 
 export function awardXP(p: PlayerProfile, xp: number): PlayerProfile {
   const updated = { ...p, xp: p.xp + xp };
 
-  // Check for level up
   for (let level = p.level + 1; level <= 10; level++) {
     if (updated.xp >= LEVEL_TABLE[level].xpRequired) {
       updated.level = level;
@@ -81,6 +133,19 @@ export function awardXP(p: PlayerProfile, xp: number): PlayerProfile {
 export function getLevelConfig(level: number): LevelConfig {
   return LEVEL_TABLE[Math.min(10, Math.max(1, level))];
 }
+
+// ── Effective minerals/slots (level + bonus) ──────────────────────
+
+export function getEffectiveMinerals(p: PlayerProfile): StarterMineralKind[] {
+  const set = new Set([...p.unlockedMinerals, ...p.bonusMinerals]);
+  return [...set];
+}
+
+export function getEffectiveMaxSlots(p: PlayerProfile): number {
+  return getLevelConfig(p.level).slots + p.bonusSlots;
+}
+
+// ── Firing Slots ──────────────────────────────────────────────────
 
 export function saveFiringSlots(slots: FiringSlot[]): void {
   localStorage.setItem('palette_firings', JSON.stringify(slots));
@@ -103,8 +168,6 @@ export function getXPForScore(score: number, difficulty: 'easy' | 'medium' | 'ha
   return Math.floor(baseXP * multiplier);
 }
 
-// Test acceleration (set to 1 for production, higher for testing)
-// e.g., 360 = 1 hour becomes 10 seconds
 export function getTestSpeedMultiplier(): number {
   return +(localStorage.getItem('palette_test_speed') || '1');
 }
@@ -117,4 +180,108 @@ export function getRemainingTime(slot: FiringSlot): number {
   const speedMultiplier = getTestSpeedMultiplier();
   const adjustedDuration = slot.durationMs / speedMultiplier;
   return Math.max(0, slot.startedAt + adjustedDuration - Date.now());
+}
+
+// ── Portfolio CRUD ────────────────────────────────────────────────
+
+export function savePortfolio(items: PortfolioItem[]): void {
+  localStorage.setItem('palette_portfolio', JSON.stringify(items));
+}
+
+export function loadPortfolio(): PortfolioItem[] {
+  const data = localStorage.getItem('palette_portfolio');
+  return data ? JSON.parse(data) : [];
+}
+
+// ── Saved Recipes CRUD ────────────────────────────────────────────
+
+export function saveRecipes(recipes: SavedRecipe[]): void {
+  localStorage.setItem('palette_recipes', JSON.stringify(recipes));
+}
+
+export function loadRecipes(): SavedRecipe[] {
+  const data = localStorage.getItem('palette_recipes');
+  return data ? JSON.parse(data) : [];
+}
+
+export function exportRecipe(recipe: SavedRecipe): string {
+  return btoa(JSON.stringify(recipe));
+}
+
+export function importRecipe(code: string): SavedRecipe | null {
+  try {
+    const parsed = JSON.parse(atob(code));
+    if (parsed && parsed.recipe && parsed.kiln && parsed.name) {
+      return { ...parsed, id: Date.now(), createdAt: Date.now() };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Auctions CRUD ─────────────────────────────────────────────────
+
+export function saveAuctions(auctions: AuctionSlot[]): void {
+  localStorage.setItem('palette_auctions', JSON.stringify(auctions));
+}
+
+export function loadAuctions(): AuctionSlot[] {
+  const data = localStorage.getItem('palette_auctions');
+  return data ? JSON.parse(data) : [];
+}
+
+export function isAuctionComplete(auction: AuctionSlot): boolean {
+  const speedMultiplier = getTestSpeedMultiplier();
+  const adjustedDuration = auction.durationMs / speedMultiplier;
+  return Date.now() >= auction.startedAt + adjustedDuration;
+}
+
+export function getAuctionRemainingTime(auction: AuctionSlot): number {
+  const speedMultiplier = getTestSpeedMultiplier();
+  const adjustedDuration = auction.durationMs / speedMultiplier;
+  return Math.max(0, auction.startedAt + adjustedDuration - Date.now());
+}
+
+// ── Sleep / Calendar ──────────────────────────────────────────────
+
+// ── Submissions CRUD ─────────────────────────────────────────────
+
+export function saveSubmissions(submissions: Submission[]): void {
+  localStorage.setItem('palette_submissions', JSON.stringify(submissions));
+}
+
+export function loadSubmissions(): Submission[] {
+  const data = localStorage.getItem('palette_submissions');
+  return data ? JSON.parse(data) : [];
+}
+
+export function getOrderKey(mode: 'fixed' | 'random', orderIndex: number, seed?: number): string {
+  if (mode === 'fixed') return `fixed:${orderIndex}`;
+  return `random:${seed ?? 0}`;
+}
+
+// ── Sleep / Calendar ──────────────────────────────────────────────
+
+export function getNextEventTime(
+  firingSlots: FiringSlot[], auctions: AuctionSlot[]
+): number | null {
+  const speedMultiplier = getTestSpeedMultiplier();
+  let earliest: number | null = null;
+
+  for (const slot of firingSlots) {
+    const endTime = slot.startedAt + slot.durationMs / speedMultiplier;
+    if (endTime > Date.now() && (earliest === null || endTime < earliest)) {
+      earliest = endTime;
+    }
+  }
+
+  for (const auction of auctions) {
+    const endTime = auction.startedAt + auction.durationMs / speedMultiplier;
+    if (endTime > Date.now() && (earliest === null || endTime < earliest)) {
+      earliest = endTime;
+    }
+  }
+
+  return earliest;
 }

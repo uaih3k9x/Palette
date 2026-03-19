@@ -12,6 +12,12 @@ interface Props {
 
 const atmospheres: Atmosphere[] = ['Oxidation', 'Neutral', 'Reduction'];
 
+const atmosphereI18nKey: Record<Atmosphere, string> = {
+  Oxidation: 'kiln.oxidation',
+  Neutral: 'kiln.neutral',
+  Reduction: 'kiln.reduction',
+};
+
 export default function KilnSettingsPanel({ settings, onChange, onFire, disabled, firingLabel, canFire }: Props) {
   const { t } = useLocale();
   const set = <K extends keyof KilnSettings>(k: K, v: KilnSettings[K]) =>
@@ -47,7 +53,7 @@ export default function KilnSettingsPanel({ settings, onChange, onFire, disabled
             <button key={a} onClick={() => set('atmosphere', a)}
               disabled={disabled}
               className={`px-2 py-1 rounded text-xs disabled:opacity-50 ${settings.atmosphere === a ? 'bg-orange-600' : 'bg-stone-700'}`}>
-              {a}
+              {t(atmosphereI18nKey[a] as any)}
             </button>
           ))}
         </div>
